@@ -599,13 +599,13 @@ const controlRecipes = async function() {
         // 2) Rendering recipe
         (0, _recipeViewJsDefault.default).render(_modelJs.state.recipe);
     } catch (err) {
-        alert(err);
+        (0, _recipeViewJsDefault.default).renderError();
     }
 };
-[
-    "hashchange",
-    "load"
-].forEach((ev)=>window.addEventListener(ev, controlRecipes));
+const init = function() {
+    (0, _recipeViewJsDefault.default).addHandlerRender(controlRecipes);
+};
+init();
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","./model.js":"Y4A21","./views/recipeView.js":"l60JC"}],"gkKU3":[function(require,module,exports) {
 exports.interopDefault = function(a) {
@@ -2467,7 +2467,6 @@ const state = {
 const loadRecipe = async function(id) {
     try {
         const data = await (0, _helpersJs.getJSON)(`${(0, _configJs.API_URL)}/${id}`);
-        console.log(res, data);
         const { recipe } = data.data;
         state.recipe = {
             id: recipe.id,
@@ -2482,6 +2481,7 @@ const loadRecipe = async function(id) {
         console.log(state.recipe);
     } catch (err) {
         console.log(`${err}\u{1F4A5}\u{1F4A5}`);
+        throw err;
     }
 };
 
@@ -2497,7 +2497,7 @@ const TIMEOUT_SEC = 10;
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getJSON", ()=>getJSON);
-var _config = require("./config");
+var _configJs = require("./config.js");
 const timeout = function(s) {
     return new Promise(function(_, reject) {
         setTimeout(function() {
@@ -2509,7 +2509,7 @@ const getJSON = async function(url) {
     try {
         const res = await Promise.race([
             fetch(url),
-            timeout((0, _config.TIMEOUT_SEC))
+            timeout((0, _configJs.TIMEOUT_SEC))
         ]);
         const data = await res.json();
         if (!res.ok) throw new Error(`${data.message} (${res.status})`);
@@ -2519,7 +2519,7 @@ const getJSON = async function(url) {
     }
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./config":"k5Hzs"}],"l60JC":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./config.js":"k5Hzs"}],"l60JC":[function(require,module,exports) {
 // import icons from "../img/icons.svg"; // Parcel 1
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
@@ -2528,6 +2528,8 @@ var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
 class RecipeView {
     #parentElement = document.querySelector(".recipe");
     #data;
+    #errorMessage = "We could not find that recipe. Please try another one!";
+    #message = "";
     render(data) {
         this.#data = data;
         const markup = this.#generateMarkup();
@@ -2537,15 +2539,45 @@ class RecipeView {
     #clear() {
         this.#parentElement.innerHTML = "";
     }
-    renderSpinner = function() {
+    renderSpinner() {
         const markup = `<div class="spinner">
     <svg>
       <use href="${(0, _iconsSvgDefault.default)}#icon-loader"></use>
     </svg>
   </div>`;
-        this.#parentElement.innerHTML = "";
+        this.#clear();
         this.#parentElement.insertAdjacentHTML("afterbegin", markup);
-    };
+    }
+    renderError(message = this.#errorMessage) {
+        const markup = `<div class="error">
+    <div>
+      <svg>
+        <use href="${(0, _iconsSvgDefault.default)}#icon-alert-triangle"></use>
+      </svg>
+    </div>
+    <p>${message}</p>
+  </div>`;
+        this.#clear();
+        this.#parentElement.insertAdjacentHTML("afterbegin", markup);
+    }
+    renderMesage(message = this.#Message) {
+        const markup = `<div class="message">
+    <div>
+      <svg>
+        <use href="${(0, _iconsSvgDefault.default)}#icon-smile"></use>
+      </svg>
+    </div>
+    <p>${message}</p>
+  </div>`;
+        this.#clear();
+        this.#parentElement.insertAdjacentHTML("afterbegin", markup);
+    }
+    addHandlerRender(handler) {
+        [
+            "hashchange",
+            "load"
+        ].forEach((ev)=>window.addEventListener(ev, handler));
+    }
     #generateMarkup() {
         return `<figure class="recipe__fig">
     <img src="${this.#data.image}" alt="${this.#data.title}" class="recipe__img" />
