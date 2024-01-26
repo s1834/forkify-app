@@ -1,11 +1,11 @@
-import { async } from "regenerator-runtime";
-import { API_URL, RES_PER_PAGE } from "./config.js";
-import { getJSON } from "./helpers.js";
+import {async} from 'regenerator-runtime';
+import {API_URL, RES_PER_PAGE} from './config.js';
+import {getJSON} from './helpers.js';
 
 export const state = {
   recipe: {},
   search: {
-    query: "",
+    query: '',
     results: [],
     page: 1,
     resultsPerPage: RES_PER_PAGE,
@@ -16,7 +16,7 @@ export const state = {
 export const loadRecipe = async function (id) {
   try {
     const data = await getJSON(`${API_URL}/${id}`);
-    const { recipe } = data.data;
+    const {recipe} = data.data;
     state.recipe = {
       id: recipe.id,
       title: recipe.title,
@@ -75,12 +75,18 @@ export const updateServings = function (newServings) {
   state.recipe.servings = newServings;
 };
 
+const persistBoommarks = function () {
+  localStorage.setItem('bookmarks', JSON.stringify(state.bookmarks));
+};
+
 export const addBookmark = function (recipe) {
   // Add bookmark
   state.bookmarks.push(recipe);
 
   // Mark current recipe as bookmark
   if (recipe.id === state.recipe.id) state.recipe.bookmarked = true;
+
+  persistBoommarks();
 };
 
 export const deleteBookmark = function (id) {
@@ -90,4 +96,17 @@ export const deleteBookmark = function (id) {
 
   // Mark current recipe as bookmark
   if (id === state.recipe.id) state.recipe.bookmarked = false;
+
+  persistBoommarks();
 };
+
+const init = function () {
+  const storage = localStorage.getItem('bookmarks');
+  if (storage) state.bookmarks = JSON.parse(storage);
+};
+init();
+
+const clearBookmarks = function () {
+  localStorage.clear('bookmarks');
+};
+// clearBookmarks();
