@@ -1,6 +1,6 @@
+import View from "./View.js";
 // import icons from "../img/icons.svg"; // Parcel 1
 import icons from "url:../../img/icons.svg"; // Parcel 2
-import View from "./View.js";
 
 class RecipeView extends View {
   _parentElement = document.querySelector(".recipe");
@@ -71,9 +71,12 @@ class RecipeView extends View {
       </div>
     </div>
 
-    <div class="recipe__user-generated">
-    
+    <div class="recipe__user-generated ${this._data.key ? "" : "hidden"}">
+      <svg>
+        <use href="${icons}#icon-user"></use>
+      </svg>
     </div>
+    
     <button class="btn--round btn--bookmark">
       <svg class="">
         <use href="${icons}#icon-bookmark${
@@ -114,7 +117,8 @@ class RecipeView extends View {
   }
 
   _generateMarkupIngredient(ing) {
-    return `<li class="recipe__ingredient">
+    return `
+    <li class="recipe__ingredient">
     <svg class="recipe__icon">
       <use href="${icons}#icon-check"></use>
     </svg>
@@ -123,7 +127,8 @@ class RecipeView extends View {
       <span class="recipe__unit">${ing.unit}</span>
       ${ing.description}
     </div>
-  </li>`;
+  </li>
+  `;
   }
 }
 

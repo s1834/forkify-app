@@ -81,7 +81,7 @@ export default class View {
     this._parentElement.insertAdjacentHTML("afterbegin", markup);
   }
 
-  renderMesage(message = this._message) {
+  renderMessage(message = this._message) {
     const markup = `<div class="message">
       <div>
         <svg>
